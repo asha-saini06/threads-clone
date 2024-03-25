@@ -36,13 +36,13 @@ const UserHeader = () => {
     <VStack gap={4} alignItems={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
         <Box>
-          <Text fontSize={"2xl"} fontWeight={"bold"}>
+          <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight={"bold"}>
             Yuta Okkotsu
           </Text>
           <Flex gap={2} alignItems={"center"}>
             <Text fontSize={"sm"}>yutaokkotsu</Text>
             <Text
-              fontSize={"xs"}
+              fontSize={{ base: "xs", md: "sm", lg: "md" }}
               bg={"gray.dark"}
               color={"gray.light"}
               p={1}
@@ -53,7 +53,11 @@ const UserHeader = () => {
           </Flex>
         </Box>
         <Box>
-          <Avatar name="Yuta Okkotsu" src="/Yuta Okkotsu.png" size={"xl"} />
+          <Avatar
+            name="Yuta Okkotsu"
+            src="/Yuta Okkotsu.png"
+            size={{ base: "md", md: "xl" }}
+          />
         </Box>
       </Flex>
 
