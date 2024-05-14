@@ -5,6 +5,7 @@ import {
   FormLabel,
   Input,
   InputGroup,
+  HStack,
   InputRightElement,
   Stack,
   Button,
@@ -20,32 +21,37 @@ import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
 
-export default function LoginCard() {
+export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
-  const setUser = useSetRecoilState(userAtom);
   const [inputs, setInputs] = useState({
+    name: "",
     username: "",
+    email: "",
     password: "",
-  }); // store user inputs in state
-  const showToast = useShowToast();
+  });
 
-  const handleLogin = async () => {
+  const showToast = useShowToast();
+  const setUser = useSetRecoilState(userAtom);
+
+  const handleSignup = async () => {
+    // console.log(inputs);
     try {
-      const res = await fetch("/api/users/login", {
+      const res = await fetch("/api/users/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(inputs),
-      }); // send login request to server
+      });
 
-      const data = await res.json(); // wait for response
+      const data = await res.json();
+      console.log(data);
+
       if (data.error) {
         showToast("Error", data.error, "error");
         return;
-      } // show error if login fails
-      console.log(data);
+      }
 
       localStorage.setItem("user-threads", JSON.stringify(data)); // store user data in local storage
       setUser(data); // set user data in recoil state
@@ -59,7 +65,7 @@ export default function LoginCard() {
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
         <Stack align={"center"}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
-            Login
+            Sign up
           </Heading>
         </Stack>
         <Box
@@ -67,20 +73,42 @@ export default function LoginCard() {
           bg={useColorModeValue("white", "gray.dark")}
           boxShadow={"lg"}
           p={8}
-          w={{ base: "full", sm: "400px" }}
         >
           <Stack spacing={4}>
+            <HStack>
+              <Box>
+                <FormControl isRequired>
+                  <FormLabel>Full Name</FormLabel>
+                  <Input
+                    type="text"
+                    onChange={(e) =>
+                      setInputs({ ...inputs, name: e.target.value })
+                    }
+                    value={inputs.name}
+                  />
+                </FormControl>
+              </Box>
+              <Box>
+                <FormControl isRequired>
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    type="text"
+                    onChange={(e) =>
+                      setInputs({ ...inputs, username: e.target.value })
+                    }
+                    value={inputs.username}
+                  />
+                </FormControl>
+              </Box>
+            </HStack>
             <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email address</FormLabel>
               <Input
-                type="text"
-                value={inputs.username}
+                type="email"
                 onChange={(e) =>
-                  setInputs((inputs) => ({
-                    ...inputs,
-                    username: e.target.value,
-                  }))
+                  setInputs({ ...inputs, email: e.target.value })
                 }
+                value={inputs.email}
               />
             </FormControl>
             <FormControl isRequired>
@@ -88,13 +116,10 @@ export default function LoginCard() {
               <InputGroup>
                 <Input
                   type={showPassword ? "text" : "password"}
-                  value={inputs.password}
                   onChange={(e) =>
-                    setInputs((inputs) => ({
-                      ...inputs,
-                      password: e.target.value,
-                    }))
+                    setInputs({ ...inputs, password: e.target.value })
                   }
+                  value={inputs.password}
                 />
                 <InputRightElement h={"full"}>
                   <Button
@@ -117,19 +142,16 @@ export default function LoginCard() {
                 _hover={{
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
-                onClick={handleLogin}
+                onClick={handleSignup}
               >
-                Login
+                Sign up
               </Button>
             </Stack>
             <Stack pt={6}>
               <Text align={"center"}>
-                Don&apos;t have an account?{" "}
-                <Link
-                  color={"blue.400"}
-                  onClick={() => setAuthScreen("signup")}
-                >
-                  Sign up
+                Already a user?{" "}
+                <Link color={"blue.400"} onClick={() => setAuthScreen("login")}>
+                  Login
                 </Link>
               </Text>
             </Stack>
