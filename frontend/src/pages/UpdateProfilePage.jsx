@@ -28,10 +28,15 @@ export default function UserProfilePage() {
 
   const fileRef = useRef(null); // reference to file input
   const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
 
   const { handleImageChange, imgUrl } = usePreviewImg();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (updating) return; // return if the request is already in progress
+    setUpdating(true); // set updating state to true to prevent multiple requests
 
     try {
       const res = await fetch(`/api/users/update/${user._id}`, {
@@ -53,6 +58,8 @@ export default function UserProfilePage() {
       localStorage.setItem("user-threads", JSON.stringify(data)); // store updated user data in local storage
     } catch (error) {
       showToast("Error", error.message, "error");
+    } finally {
+      setUpdating(false); // set updating state to false once the request is complete or failed
     }
   };
 
@@ -167,6 +174,7 @@ export default function UserProfilePage() {
                 bg: "green.500",
               }}
               type="submit"
+              isLoading={updating} // show loading spinner when updating
             >
               Submit
             </Button>

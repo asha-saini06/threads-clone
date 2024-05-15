@@ -1,10 +1,39 @@
+import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import UserPost from "../components/UserPost";
+import { useParams } from "react-router-dom";
+import useShowToast from "../hooks/useShowToast";
 
 const UserPage = () => {
+  const [user, setUser] = useState(null);
+  const { username } = useParams(); // get the username from the URL
+  const showToast = useShowToast();
+
+  // run the getUser function whenever the username changes
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await fetch(`/api/users/profile/${username}`); // send a GET request to the server
+        const data = await res.json(); // wait for the response
+
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
+        }
+        setUser(data); // set user data in recoil state
+      } catch (error) {
+        showToast("Error", error, "error");
+      }
+    };
+
+    getUser(); // call the getUser function
+  }, [showToast, username]);
+
+  if (!user) return null;
+
   return (
     <>
-      <UserHeader />
+      <UserHeader user={user} />
       <UserPost
         likes={1300}
         replies={100}

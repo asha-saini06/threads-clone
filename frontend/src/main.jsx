@@ -35,6 +35,7 @@ const theme = extendTheme({
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+  // React.StrictMode renders all components twice in development mode to ensure that the initial state is consistent
   <React.StrictMode>
     <RecoilRoot>
       <BrowserRouter>
