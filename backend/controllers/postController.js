@@ -1,12 +1,13 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // Create Post
 const createPost = async (req, res) => {
 
     try {
-        const { postedBy, text, img } = req.body;
-
+        const { postedBy, text } = req.body;
+        let { img } = req.body;
         if (!postedBy || !text) {
             return res.status(400).json({ error: "postedBy and text fields are required" })
         }
@@ -22,6 +23,12 @@ const createPost = async (req, res) => {
         const maxLength = 1500;
         if (text.length > maxLength) {
             return res.status(400).json({ error: `Text must be less than ${maxLength} characters` })
+        }
+
+        if (img) {
+            // Upload image to cloudinary and store the response
+            const uploadedResponse = await cloudinary.uploader.upload(img);
+            img = uploadedResponse.secure_url; // img is stored in cloudinary secure_url
         }
 
         const newPost = new Post({ postedBy, text, img });

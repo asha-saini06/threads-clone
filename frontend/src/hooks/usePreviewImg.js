@@ -24,7 +24,7 @@ const usePreviewImg = () => {
         } // Display an error message if the file is not an image
     };
 
-    return { handleImageChange, imgUrl }
+    return { handleImageChange, imgUrl, setImgUrl }
 }
 
 export default usePreviewImg

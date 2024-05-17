@@ -29,8 +29,10 @@ export default function LoginCard() {
     password: "",
   }); // store user inputs in state
   const showToast = useShowToast();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/users/login", {
         method: "POST",
@@ -45,12 +47,13 @@ export default function LoginCard() {
         showToast("Error", data.error, "error");
         return;
       } // show error if login fails
-      console.log(data);
 
       localStorage.setItem("user-threads", JSON.stringify(data)); // store user data in local storage
       setUser(data); // set user data in recoil state
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,6 +121,7 @@ export default function LoginCard() {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={handleLogin}
+                isLoading={loading}
               >
                 Login
               </Button>
