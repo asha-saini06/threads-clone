@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
-import UserPost from "../components/UserPost";
 import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
-import { Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, Spinner } from "@chakra-ui/react";
+import Post from "../components/Post";
 
 const UserPage = () => {
   const [user, setUser] = useState(null);
   const { username } = useParams(); // get the username from the URL
   const showToast = useShowToast();
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [fetchingPosts, setFetchingPosts] = useState(true);
 
   // run the getUser function whenever the username changes
   useEffect(() => {
@@ -24,14 +26,31 @@ const UserPage = () => {
         }
         setUser(data); // set user data in recoil state
       } catch (error) {
-        showToast("Error", error, "error");
+        showToast("Error", error.message, "error");
       } finally {
         setLoading(false);
       }
     };
 
+    const getPosts = async () => {
+      if (!user) return; // if user is not found, return
+      setFetchingPosts(true); // set fetchingPosts state to true
+      try {
+        const res = await fetch(`/api/posts/user/${username}`); // send a GET request to the server
+        const data = await res.json();
+        console.log(data);
+        setPosts(data); // set user data in recoil state
+      } catch (error) {
+        showToast("Error", error.message, "error");
+        setPosts([]); // clear the posts state
+      } finally {
+        setFetchingPosts(false); // set fetchingPosts state to false
+      }
+    };
+
     getUser(); // call the getUser function
-  }, [showToast, username]);
+    getPosts(); // call the getPosts function
+  }, [username, showToast, setPosts]);
 
   if (!user && loading) {
     return (
@@ -40,39 +59,24 @@ const UserPage = () => {
       </Flex>
     );
   }
-  if (!user && !loading)
-    return (
-      <Flex justifyContent="center" alignItems="center">
-        <Text>User not found!</Text>
-      </Flex>
-    );
+
+  if (!user && !loading) return <h1>User not found</h1>;
 
   return (
     <>
       <UserHeader user={user} />
-      <UserPost
-        likes={1300}
-        replies={100}
-        postImg="https://i.pinimg.com/736x/d2/a5/c6/d2a5c645b68c984d08f2ae844fb813c5.jpg"
-        postTitle=" I just made this thread!"
-      />
-      <UserPost
-        likes={1560}
-        replies={163}
-        postTitle="the name Maki contains the kanji for ‘real, genuine’ (真 ma) and ‘hope’ (希 ki)"
-      />
-      <UserPost
-        likes={390}
-        replies={80}
-        postImg="/nanami.jpg"
-        postTitle="7:3"
-      />
-      <UserPost
-        likes={9240}
-        replies={1420}
-        postImg="https://i.pinimg.com/736x/91/21/ce/9121ce0feaa129d203fa1334773eaa19.jpg"
-        postTitle="Don't Worry, I'm The Strongest."
-      />
+
+      {!fetchingPosts && posts.length === 0 && <h1>User has not posts.</h1>}
+
+      {fetchingPosts && (
+        <Flex justifyContent={"center"} my={12}>
+          <Spinner size={"xl"} />
+        </Flex>
+      )}
+
+      {posts.map((post) => (
+        <Post key={post._id} post={post} postedBy={post.postedBy} />
+      ))}
     </>
   );
 };

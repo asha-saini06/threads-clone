@@ -26,7 +26,7 @@ const UserHeader = ({ user }) => {
   const toast = useToast();
   const currentUser = useRecoilValue(userAtom); // get the current user from recoil state. i.e., logged in user
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser._id)
+    user.followers.includes(currentUser?._id)
   ); // check if the current user is following the user whose profile is being viewed
   const showToast = useShowToast();
   const [updating, setUpdating] = useState(false);
@@ -72,7 +72,7 @@ const UserHeader = ({ user }) => {
         user.followers.pop(); // simulate remove the current user from the 'followers' array
       } else {
         showToast("Success", `Followed ${user.name}`, "success");
-        user.followers.push(); // simulate adding to 'followers (only on client-side)
+        user.followers.push(currentUser?._id); // simulate adding to 'followers (only on client-side) by pushing the current user's id
       }
       setFollowing(!following); // toggle the 'following' state
 
@@ -124,13 +124,13 @@ const UserHeader = ({ user }) => {
 
       <Text>{user.bio}</Text>
 
-      {currentUser._id === user._id && (
+      {currentUser?._id === user._id && (
         <Link as={RouterLink} to="/update">
           <Button size={"sm"}>Update Profile</Button>
         </Link>
       )}
 
-      {currentUser._id !== user._id && (
+      {currentUser?._id !== user._id && (
         <Link as={RouterLink} to="/follow">
           <Button
             size={"sm"}
