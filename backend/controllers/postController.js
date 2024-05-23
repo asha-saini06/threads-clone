@@ -72,6 +72,11 @@ const deletePost = async (req, res) => {
             return res.status(401).json({ error: "Unauthorized to delete this post" }); // check if the user is the same as the logged in user
         }
 
+        if (post.img) {
+            const imgId = post.img.split("/").pop().split(".")[0]; // get the image id from the img url
+            await cloudinary.uploader.destroy(imgId); // delete the image from cloudinary
+        }
+
         await Post.findByIdAndDelete(req.params.id); // delete the post from the database
 
         res.status(200).json({ message: "Post deleted successfully" });
