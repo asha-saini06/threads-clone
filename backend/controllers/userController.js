@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Post from "../models/postModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -162,14 +163,6 @@ const updateUser = async (req, res) => {
     if (profilePic) { // if profilePic is passed
       if (user.profilePic) { // if profilePic is already stored in cloudinary
         await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0]); // deletes old profilePic from cloudinary
-
-        // An example to show above expression works:
-        // >  "https://res.cloudinary.com/dx2sb5fhx/image/upload/v1715771625/lwuifgmnu68dxikznwbj.jpg".split("/")
-        // (8) ['https:', '', 'res.cloudinary.com', 'dx2sb5fhx', 'image', 'upload', 'v1715771625', 'lwuifgmnu68dxikznwbj.jpg']
-        // >  "lwuifgmnu68dxikznwbj.jpg".split(".")
-        // (2) ['lwuifgmnu68dxikznwbj', 'jpg']
-        // >  "lwuifgmnu68dxikznwbj.jpg".split(".")[0]
-        // 'lwuifgmnu68dxikznwbj' <- this is the image's public id (basically image name)
       }
 
       // Upload profile picture to cloudinary and store the response
@@ -185,6 +178,18 @@ const updateUser = async (req, res) => {
 
     user = await user.save();
 
+    // Find all posts that this user replied and update username and userProfilePic fields
+    await Post.updateMany(
+      { "replies.userId": userId }, // find all posts that this user replied
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        }, // $[reply] is used to match the reply to the current userId in the array of replies
+      },
+      { arrayFilters: [{ "reply.userId": userId }] } // arrayFilters is used to match the reply to the current userId in the array of replies 
+    );
+
     // password should be null in response 
     user.password = null;
 
@@ -195,7 +200,5 @@ const updateUser = async (req, res) => {
     console.log("Error in updateUser: ", err.message);
   }
 }
-
-
 
 export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser, getUserProfile };

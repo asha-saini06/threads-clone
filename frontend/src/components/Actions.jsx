@@ -16,13 +16,15 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
-const Actions = ({ post: post_ }) => {
-  // default post object
+import postsAtom from "../atoms/postsAtom";
+
+const Actions = ({ post }) => {
+  // get the post from the props
   const user = useRecoilValue(userAtom);
-  const [liked, setLiked] = useState(post_.likes.includes(user?._id)); // check if the current user has liked the post
-  const [post, setPost] = useState(post_); // set post state to the post passed as a prop
+  const [liked, setLiked] = useState(post.likes.includes(user?._id)); // check if the current user has liked the post
+  const [posts, setPosts] = useRecoilState(postsAtom); // get the posts from recoil state and set them in recoil state
   const [isLiking, setIsLiking] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [reply, setReply] = useState("");
@@ -48,10 +50,24 @@ const Actions = ({ post: post_ }) => {
 
       if (!liked) {
         // add the id of the current user to the likes array
-        setPost({ ...post, likes: [...post.likes, user._id] });
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            // check if the post id matches the id of the post in the posts array
+            return { ...p, likes: [...p.likes, user._id] }; // add the id of the current user to the likes array of the post in the posts array
+          }
+          return p; // return the original post if the post id doesn't match the id of the post in the posts array
+        });
+
+        setPosts(updatedPosts); // set the updated posts in recoil state
       } else {
         // remove the id of the current user from the likes array
-        setPost({ ...post, likes: post.likes.filter((id) => id !== user._id) });
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: p.likes.filter((id) => id !== user._id) }; // remove the id of the current user from the likes array of the post in the posts array
+          }
+          return p; // return the original post if the post id doesn't match the id of the post in the posts array
+        });
+        setPosts(updatedPosts); // set the updated posts in recoil state
       }
 
       setLiked(!liked); // toggle the liked state
@@ -79,7 +95,13 @@ const Actions = ({ post: post_ }) => {
       console.log(data);
       if (data.error) return showToast("Error", data.error, "error");
 
-      setPost({ ...post, replies: [...post.replies, data.reply] }); // add the reply to the replies array
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          return { ...p, replies: [...p.replies, data] }; // add the reply to the replies array of the post in the posts array
+        }
+        return p; // return the original post if the post id doesn't match the id of the post in the posts array
+      });
+      setPosts(updatedPosts);
       showToast("Success", "Reply posted successfully", "success");
 
       onClose(); // close the modal after replying

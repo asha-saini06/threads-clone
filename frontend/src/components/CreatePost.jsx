@@ -21,9 +21,11 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useState, useRef } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
+import { useParams } from "react-router-dom";
 
 const MAX_CHARS = 500;
 
@@ -36,6 +38,8 @@ const CreatePost = () => {
   const user = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
+  const { username } = useParams();
 
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -73,6 +77,12 @@ const CreatePost = () => {
         return;
       }
       showToast("Success", "Post created successfully", "success");
+
+      // check if the current user is the author of the post
+      if (username === user.username) {
+        setPosts([data, ...posts]); // add the new post to the posts array in recoil state
+      }
+
       onClose(); // close modal
       setPostText(""); // reset postText
       setImgUrl(""); // reset imgUrl
@@ -88,12 +98,12 @@ const CreatePost = () => {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
-        leftIcon={<AddIcon />}
+        right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen} // open modal when button is clicked
+        size={{ base: "sm", md: "md" }}
       >
-        Post
+        <AddIcon />
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>

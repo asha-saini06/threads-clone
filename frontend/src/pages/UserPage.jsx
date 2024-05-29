@@ -4,39 +4,25 @@ import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post";
+import useGetUserProfile from "../hooks/useGetUserProfile";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom";
 
 const UserPage = () => {
-  const [user, setUser] = useState(null);
+  const { user, loading } = useGetUserProfile(); // get the user data from the hook and recoil state
   const { username } = useParams(); // get the username from the URL
   const showToast = useShowToast();
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [fetchingPosts, setFetchingPosts] = useState(true);
 
-  // run the getUser function whenever the username changes
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await fetch(`/api/users/profile/${username}`); // send a GET request to the server
-        const data = await res.json(); // wait for the response
-        if (data.error) {
-          showToast("Error", data.error, "error");
-          return;
-        }
-        setUser(data); // set user data in recoil state
-      } catch (error) {
-        showToast("Error", error.message, "error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // get the user's posts from the server and set them in recoil state
     const getPosts = async () => {
       setFetchingPosts(true); // set fetchingPosts state to true
       try {
         const res = await fetch(`/api/posts/user/${username}`); // send a GET request to the server
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         setPosts(data); // set user data in recoil state
       } catch (error) {
         showToast("Error", error.message, "error");
@@ -46,9 +32,9 @@ const UserPage = () => {
       }
     };
 
-    getUser(); // call the getUser function
     getPosts(); // call the getPosts function
-  }, [username, showToast]);
+  }, [username, showToast, setPosts]);
+  // console.log("posts from recoil", posts);
 
   if (!user && loading) {
     return (
