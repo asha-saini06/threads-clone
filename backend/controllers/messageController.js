@@ -67,6 +67,7 @@ async function getMessages(req, res) {
 
     } catch (error) {
         res.status(500).json({ error: error.message });
+        console.log(error);
     }
 }
 
@@ -78,6 +79,13 @@ async function getConversations(req, res) {
             path: "participants", // populate the participants field in the conversation model
             select: "username profilePic" // select only the username and profilePic fields
         }); // find the conversations where the user is a participant
+
+        // remove the current user from the participants array
+        conversations.forEach((conversation) => {
+            conversation.participants = conversation.participants.filter(
+                (participant) => participant._id.toString() !== userId.toString()
+            );
+        });
 
         res.status(200).json(conversations); // return the conversations to the frontend
     } catch (error) {

@@ -5,11 +5,25 @@ import {
   Image,
   Stack,
   Text,
+  useColorMode,
   useColorModeValue,
   WrapItem,
 } from "@chakra-ui/react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+import { BsCheck2All } from "react-icons/bs";
+import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-const Conversation = () => {
+const Conversation = ({ conversation }) => {
+  const user = conversation.participants[0]; // get the user who sent the message in the conversation
+  const currentUser = useRecoilValue(userAtom); // get the current user from the recoil state
+  const lastMessage = conversation.lastMessage; // get the last message sent in the conversation
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
+  const colorMode = useColorMode();
+
+  console.log("selectedConversation ", selectedConversation);
   return (
     <Flex
       gap={4}
@@ -17,23 +31,46 @@ const Conversation = () => {
       p={"1"}
       _hover={{
         cursor: "pointer",
-        bg: useColorModeValue("gray.600", "gray.dark"),
+        bg: useColorModeValue("gray.400", "gray.dark"),
         color: "white",
       }}
+      onClick={() =>
+        setSelectedConversation({
+          _id: conversation._id,
+          userId: user._id,
+          username: user.username,
+          userProfilePic: user.profilePic,
+        })
+      }
+      bg={
+        selectedConversation?._id === conversation._id
+          ? colorMode === "light"
+            ? "gray.600"
+            : " gray.dark"
+          : ""
+      }
       borderRadius={"md"}
     >
       <WrapItem>
-        <Avatar size={{ base: "xs", sm: "sm", md: "md" }} src="/nanami.jpg">
+        <Avatar size={{ base: "xs", sm: "sm", md: "md" }} src={user.profilePic}>
           <AvatarBadge boxSize="1em" bg="green.500" />
         </Avatar>
       </WrapItem>
 
       <Stack direction={"column"} fontSize={"sm"}>
         <Text fontWeight="700" display={"flex"} alignItems={"center"}>
-          nanami <Image src="/verified.png" w={4} h={4} ml={1} alt="verified" />
+          {user.username}
+          <Image src="/verified.png" w={4} h={4} ml={1} alt="verified" />
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
-          Sample text msg ...
+          {currentUser._id === lastMessage.sender ? (
+            <BsCheck2All size={16} />
+          ) : (
+            ""
+          )}
+          {lastMessage.text.length > 18
+            ? lastMessage.text.substring(0, 18) + "..."
+            : lastMessage.text}
         </Text>
       </Stack>
     </Flex>
