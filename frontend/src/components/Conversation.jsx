@@ -48,6 +48,7 @@ const Conversation = ({ conversation }) => {
           userId: user._id,
           username: user.username,
           userProfilePic: user.profilePic,
+          mock: conversation.mock, // check if the conversation is a mock conversation
         })
       }
       bg={

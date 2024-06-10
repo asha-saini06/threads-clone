@@ -25,12 +25,14 @@ const MessageContainer = () => {
   const currentUser = useRecoilValue(userAtom);
 
   const showToast = useShowToast();
+
   useEffect(() => {
     const getMessages = async () => {
       setLoadingMessages(true);
       setMessages([]); // set the messages to an empty array
 
       try {
+        if (selectedConversation.mock) return; // if the selected conversation is a mock conversation, return
         const res = await fetch(`/api/messages/${selectedConversation.userId}`);
         const data = await res.json();
         if (data.error) {
@@ -47,7 +49,7 @@ const MessageContainer = () => {
     };
 
     getMessages();
-  }, [showToast, selectedConversation.userId]);
+  }, [showToast, selectedConversation.userId, selectedConversation.mock]);
 
   return (
     <Flex

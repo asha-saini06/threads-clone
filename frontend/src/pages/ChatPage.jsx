@@ -14,18 +14,22 @@ import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   conversationsAtom,
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
 
 const ChatPage = () => {
+  const [searchingUser, setSearchingUser] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
-  const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const [searchText, setSearchText] = useState("");
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
+  const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const currentUser = useRecoilValue(userAtom);
 
   const showToast = useShowToast();
 
@@ -51,6 +55,64 @@ const ChatPage = () => {
 
     getConversations();
   }, [showToast, setConversations]); // run the getConversations function when the showToast or setConversations changes
+
+  const handleConversationSearch = async (e) => {
+    e.preventDefault(); // prevent the default form submission
+    setSearchingUser(true); // set searchingUser to true to prevent multiple requests
+
+    try {
+      const res = await fetch(`/api/users/profile/${searchText}`); // send a GET request to the server with the searchText as the query parameter
+      const searchedUser = await res.json();
+
+      if (searchedUser.error) {
+        showToast("Error", searchedUser.error, "error");
+        return;
+      }
+
+      const messageYourself = searchedUser._id === currentUser._id;
+      if (messageYourself) {
+        showToast("Error", "You cannot message yourself", "error");
+        return;
+      }
+
+      // if user is already in the conversation with the searched user
+      const conversationAlreadyExists = conversations.find(
+        (conversation) => conversation.participants[0]._id === searchedUser._id
+      );
+      if (conversationAlreadyExists) {
+        setSelectedConversation({
+          _id: conversationAlreadyExists._id,
+          userId: searchedUser._id,
+          username: searchedUser.username,
+          userProfilePic: searchedUser.profilePic,
+        }); // set the selectedConversation to the conversation with the searched user
+        return;
+      }
+
+      // if user is not in the conversation with the searched user
+      const mockConversation = {
+        mock: true,
+        lastMessage: {
+          text: "",
+          sender: "",
+        },
+        _id: Date.now(),
+        participants: [
+          {
+            _id: searchedUser._id,
+            username: searchedUser.username,
+            profilePic: searchedUser.profilePic,
+          },
+        ],
+      };
+
+      setConversations((prevConvs) => [...prevConvs, mockConversation]); // add the mock conversation to the conversations array in recoil state
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setSearchingUser(false); // set searchingUser to false
+    }
+  };
 
   return (
     <Box
@@ -79,10 +141,17 @@ const ChatPage = () => {
           >
             Your Conversations
           </Text>
-          <form>
+          <form onSubmit={handleConversationSearch}>
             <Flex alignItems={"center"} gap={2}>
-              <Input placeholder="Search for a user" />
-              <Button size={"sm"}>
+              <Input
+                placeholder="Search for a user"
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <Button
+                size={"sm"}
+                onClick={handleConversationSearch}
+                isLoading={searchingUser}
+              >
                 <SearchIcon />
               </Button>
             </Flex>
