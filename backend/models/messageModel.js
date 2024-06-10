@@ -7,7 +7,11 @@ const messageSchema = new mongoose.Schema({
     seen: {
         type: Boolean,
         default: false,
-    }
+    },
+    img: {
+        type: String,
+        default: " ",
+    },
 }, { timestamps: true });
 
 const Message = mongoose.model("Message", messageSchema);

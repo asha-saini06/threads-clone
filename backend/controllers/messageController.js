@@ -1,10 +1,12 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
 import { getRecipientSocketId, io } from "../socket/socket.js";
+import { v2 as cloudinary } from "cloudinary";
 
 async function sendMessage(req, res) {
     try {
         const { recipientId, message } = req.body; // recipientId is the id of the user who will receive the message
+        let { img } = req.body;
         const senderId = req.user._id; // get the id of the user who sent the message
 
         let conversation = await Conversation.findOne({ // check if there is a conversation between the two users
@@ -23,11 +25,17 @@ async function sendMessage(req, res) {
             await conversation.save();
         }
 
+        if (img) {
+            const uploadedResponse = await cloudinary.uploader.upload(img);
+            img = uploadedResponse.secure_url;
+        }
+
         // if there is a conversation, send the message
         const newMessage = new Message({
             conversationId: conversation._id,
             sender: senderId,
             text: message,
+            img: img || ""
         });
 
         // update the conversation with the new message
