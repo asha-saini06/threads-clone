@@ -20,6 +20,7 @@ import {
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 const ChatPage = () => {
   const [searchingUser, setSearchingUser] = useState(false);
@@ -30,8 +31,8 @@ const ChatPage = () => {
   );
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
   const currentUser = useRecoilValue(userAtom);
-
   const showToast = useShowToast();
+  const { socket, onlineUsers } = useSocket();
 
   // Get conversations
   useEffect(() => {
@@ -180,6 +181,9 @@ const ChatPage = () => {
             conversations.map((conversation) => (
               <Conversation
                 key={conversation._id}
+                isOnline={onlineUsers.includes(
+                  conversation.participants[0]._id
+                )} // check if the current user is online in the conversation with the participant
                 conversation={conversation}
               />
             ))}

@@ -14,7 +14,7 @@ import userAtom from "../atoms/userAtom";
 import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-const Conversation = ({ conversation }) => {
+const Conversation = ({ conversation, isOnline }) => {
   const user = conversation?.participants[0]; // get the user who is in the conversation
   const currentUser = useRecoilValue(userAtom); // get the current user
   const lastMessage = conversation?.lastMessage || {}; // get the last message of the conversation || default empty object for lastMessage to ensure it is always defined
@@ -69,7 +69,7 @@ const Conversation = ({ conversation }) => {
           }}
           src={user.profilePic}
         >
-          <AvatarBadge boxSize="1em" bg="green.500" />
+          {isOnline ? <AvatarBadge boxSize="1em" bg="green.500" /> : ""}
         </Avatar>
       </WrapItem>
 
