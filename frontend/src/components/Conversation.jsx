@@ -5,25 +5,32 @@ import {
   Image,
   Stack,
   Text,
+  WrapItem,
   useColorMode,
   useColorModeValue,
-  WrapItem,
 } from "@chakra-ui/react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { BsCheck2All } from "react-icons/bs";
+import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
 const Conversation = ({ conversation }) => {
-  const user = conversation.participants[0]; // get the user who sent the message in the conversation
-  const currentUser = useRecoilValue(userAtom); // get the current user from the recoil state
-  const lastMessage = conversation.lastMessage; // get the last message sent in the conversation
+  const user = conversation?.participants[0]; // get the user who is in the conversation
+  const currentUser = useRecoilValue(userAtom); // get the current user
+  const lastMessage = conversation?.lastMessage || {}; // get the last message of the conversation || default empty object for lastMessage to ensure it is always defined
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
-  const colorMode = useColorMode();
+  const { colorMode } = useColorMode();
 
-  console.log("selectedConversation ", selectedConversation);
+  console.log("selectedConversation", selectedConversation);
+  console.log("conversation", conversation);
+
+  // Conditional Rendering
+  if (!conversation || !user) {
+    return null;
+  }
+
   return (
     <Flex
       gap={4}
@@ -31,7 +38,8 @@ const Conversation = ({ conversation }) => {
       p={"1"}
       _hover={{
         cursor: "pointer",
-        bg: useColorModeValue("gray.400", "gray.dark"),
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        bg: useColorModeValue("gray.600", "gray.dark"),
         color: "white",
       }}
       onClick={() =>
@@ -45,22 +53,28 @@ const Conversation = ({ conversation }) => {
       bg={
         selectedConversation?._id === conversation._id
           ? colorMode === "light"
-            ? "gray.600"
-            : " gray.dark"
+            ? "gray.400"
+            : "gray.dark"
           : ""
       }
       borderRadius={"md"}
     >
       <WrapItem>
-        <Avatar size={{ base: "xs", sm: "sm", md: "md" }} src={user.profilePic}>
+        <Avatar
+          size={{
+            base: "xs",
+            sm: "sm",
+            md: "md",
+          }}
+          src={user.profilePic}
+        >
           <AvatarBadge boxSize="1em" bg="green.500" />
         </Avatar>
       </WrapItem>
 
       <Stack direction={"column"} fontSize={"sm"}>
         <Text fontWeight="700" display={"flex"} alignItems={"center"}>
-          {user.username}
-          <Image src="/verified.png" w={4} h={4} ml={1} alt="verified" />
+          {user.username} <Image src="/verified.png" w={4} h={4} ml={1} />
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
           {currentUser._id === lastMessage.sender ? (
@@ -68,9 +82,9 @@ const Conversation = ({ conversation }) => {
           ) : (
             ""
           )}
-          {lastMessage.text.length > 18
+          {lastMessage.text?.length > 18
             ? lastMessage.text.substring(0, 18) + "..."
-            : lastMessage.text}
+            : lastMessage.text || <BsFillImageFill size={16} />}
         </Text>
       </Stack>
     </Flex>

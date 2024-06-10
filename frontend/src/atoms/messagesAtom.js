@@ -13,4 +13,4 @@ export const selectedConversationAtom = atom({
         username: "",
         userProfilePic: "",
     }
-})
+});

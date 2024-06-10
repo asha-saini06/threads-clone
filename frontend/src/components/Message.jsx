@@ -1,12 +1,10 @@
 import { Avatar, Flex, Text } from "@chakra-ui/react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 
 const Message = ({ ownMessage, message }) => {
-  const [selectedConversation, setSelectedConversation] = useRecoilState(
-    selectedConversationAtom
-  ); // get the selected conversation from the recoil state
+  const selectedConversation = useRecoilValue(selectedConversationAtom); // get the selected conversation from the recoil state
   const user = useRecoilValue(userAtom); // get the current user from the recoil state
 
   return (
@@ -14,13 +12,15 @@ const Message = ({ ownMessage, message }) => {
       {ownMessage ? (
         <Flex gap={2} alignSelf={"flex-end"}>
           <Text maxW={"350px"} bg={"blue.400"} p={1} borderRadius={"md"}>
-            {message.text}
+            {message.text} {/* display the message text */}
           </Text>
           <Avatar src={user.profilePic} w={7} h={7} />
+          {/* display the current user's profile picture */}
         </Flex>
       ) : (
         <Flex gap={2}>
           <Avatar src={selectedConversation.userProfilePic} w={7} h={7} />
+          {/* display the other user's profile picture */}
           <Text
             maxW={"350px"}
             bg={"gray.400"}
