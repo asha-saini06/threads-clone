@@ -18,6 +18,7 @@ const UserPage = () => {
   useEffect(() => {
     // get the user's posts from the server and set them in recoil state
     const getPosts = async () => {
+      if (!user) return; // if the user is not found, return
       setFetchingPosts(true); // set fetchingPosts state to true
       try {
         const res = await fetch(`/api/posts/user/${username}`); // send a GET request to the server
@@ -33,7 +34,7 @@ const UserPage = () => {
     };
 
     getPosts(); // call the getPosts function
-  }, [username, showToast, setPosts]);
+  }, [username, showToast, setPosts, user]);
   // console.log("posts from recoil", posts);
 
   if (!user && loading) {
@@ -43,6 +44,7 @@ const UserPage = () => {
       </Flex>
     );
   }
+
   if (!user && !loading) return <h1>User not found</h1>;
 
   return (

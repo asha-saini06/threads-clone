@@ -9,12 +9,16 @@ const useGetUserProfile = () => {
     const showToast = useShowToast();
 
     useEffect(() => {
-        const getUser = async () => {   // run the getUser function whenever the username changes
+        const getUser = async () => { // get the user data from the server and set it in recoil state // run the getUser function whenever the username changes
             try {
                 const res = await fetch(`/api/users/profile/${username}`); // send a GET request to the server
-                const data = await res.json(); // wait for the response
+                const data = await res.json(); // get the response data
                 if (data.error) {
                     showToast("Error", data.error, "error");
+                    return;
+                }
+                if (data.isFrozen) { // check if the user is frozen by the admin
+                    setUser(null);
                     return;
                 }
                 setUser(data); // set user data in recoil state
@@ -24,11 +28,10 @@ const useGetUserProfile = () => {
                 setLoading(false);
             }
         };
-
         getUser();
     }, [username, showToast]);
 
-    return { user, loading };
-}
+    return { loading, user };
+};
 
-export default useGetUserProfile
+export default useGetUserProfile;

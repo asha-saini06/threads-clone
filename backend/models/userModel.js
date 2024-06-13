@@ -37,10 +37,16 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    isFrozen: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-const User = mongoose.model("User", userSchema); // User model
+const User = mongoose.model("User", userSchema);
 
 export default User;

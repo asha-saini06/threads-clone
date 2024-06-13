@@ -1,5 +1,5 @@
 import express from "express";
-import { followUnfollowUser, getUserProfile, loginUser, logoutUser, signupUser, updateUser, getSuggestedUsers } from "../controllers/userController.js";
+import { getUserProfile, loginUser, logoutUser, signupUser, updateUser, followUnFollowUser, getSuggestedUsers, freezeAccount } from "../controllers/userController.js";
 import protectRoute from "../middlewares/protectRoute.js";
 
 const router = express.Router();
@@ -9,8 +9,9 @@ router.get("/suggested", protectRoute, getSuggestedUsers);
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
-router.post("/follow/:id", protectRoute, followUnfollowUser); //Toggle state (follow/unfollow)
+router.post("/follow/:id", protectRoute, followUnFollowUser); //Toggle state (follow/unfollow)
 router.put("/update/:id", protectRoute, updateUser);
+router.put("/freeze", protectRoute, freezeAccount);
 
 
 export default router;
