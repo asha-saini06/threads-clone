@@ -19,6 +19,7 @@ import {
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import messageSound from "../assets/sounds/message.mp3";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -35,6 +36,11 @@ const MessageContainer = () => {
       if (selectedConversation._id === message.conversationId) {
         setMessages((prev) => [...prev, message]);
       }
+
+      if (!document.hasFocus()) {
+        const sound = new Audio(messageSound);
+        sound.play();
+      } // play a sound when a new message is received and the user is not in focus
 
       setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
