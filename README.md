@@ -28,64 +28,46 @@ Threads Clone is a full-stack social networking platform that emulates the core 
 
 ### Setup
 
-1. **Clone the repository:**
 
-   ```bash
-   git clone https://github.com/your-username/threads-clone.git
-   cd threads-clone
-   ```
 
-2. **Backend Setup:**
+### Setup .env file
 
-   - Navigate to the backend directory:
+Before running the application, ensure you have a `.env` file in the root directory of the project with the following variables configured:
 
-     ```bash
-     cd backend
-     ```
+```dotenv
+PORT=5000  # Replace with your preferred port number
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
 
-   - Install dependencies:
+### Build the app
 
-     ```bash
-     npm install
-     ```
+To build the Threads Clone application:
 
-   - Create a `.env` file in the backend directory and add the following variables:
+```shell
+npm run build
+```
 
-     ```env
-     MONGO_URI=your_mongodb_connection_string
-     JWT_SECRET=your_jwt_secret
-     ```
+This command will build the frontend of the application for production use.
 
-   - Start the backend server:
+### Start the app
 
-     ```bash
-     npm start
-     ```
+To start the Threads Clone application:
 
-3. **Frontend Setup:**
+```shell
+npm start
+```
 
-   - Navigate to the frontend directory:
+This command will start the backend server and serve the built frontend. Open your browser and go to [http://localhost:5000](http://localhost:5000) to access the application.
 
-     ```bash
-     cd ../frontend
-     ```
+---
 
-   - Install dependencies:
+Make sure to follow the specific setup instructions for the frontend and backend as outlined in their respective README.md files. This section focuses solely on configuring environment variables, building the application, and starting the server. Adjust the port number (`PORT=5000`) and other variables according to your setup preferences and credentials.
 
-     ```bash
-     npm install
-     ```
-
-   - Start the frontend development server:
-
-     ```bash
-     npm start
-     ```
-
-4. **Access the application:**
-
-   Open your browser and go to [http://localhost:3000](http://localhost:3000). The backend server runs on [http://localhost:5000](http://localhost:5000).
-
+---
 
 ## Contributing
 
@@ -99,4 +81,4 @@ Contributions are welcome! Follow these steps to contribute:
 
 ---
 
-**Note:** This project was developed by following along with a tutorial on YouTube. Special thanks to the creator for providing such an informative resource.
+**Note:** This project was developed by following along with @burakorkmez. Special thanks to the creator for providing such an informative resource.
