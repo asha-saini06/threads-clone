@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js";
@@ -13,6 +14,7 @@ dotenv.config(); // To load the environment variables
 connectDB(); // Connect to the MongoDB
 
 const PORT = process.env.PORT || 5000; // Port on which the server will be running
+const __dirname = path.resolve();
 
 // Configuration for Cloudinary
 cloudinary.config({
@@ -30,6 +32,21 @@ app.use(cookieParser()); // To parse cookies in the req.cookies (middleware to r
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
+
+// http://localhost:5000 => backend, frontend
+
+// Serve static assets if in production
+
+if (process.env.NODE_ENV === "production") {
+  // Set dist folder as static
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  // react app is served on this route
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 
 server.listen(PORT, () =>
   console.log(`Server started at http://localhost:${PORT}`)
