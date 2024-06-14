@@ -12,6 +12,7 @@ import { app, server } from "./socket/socket.js";
 dotenv.config(); // To load the environment variables
 
 connectDB(); // Connect to the MongoDB
+job.start(); // Start the cron job
 
 const PORT = process.env.PORT || 5000; // Port on which the server will be running
 const __dirname = path.resolve();
